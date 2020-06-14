@@ -1,6 +1,6 @@
-// Declare initial function
+// Declare initial function.
 function init() {
-    // Populate dropdown option with all the individual ID's of the study subjects.
+    // Populate dropdown options with all the individual ID's of the study subjects.
     d3.json("samples.json").then(function(data) {
         d3.select("#selDataset").selectAll("option")
             .data(data.names)
@@ -47,7 +47,7 @@ function buildPlot(id){
             orientation: 'h'
         };
 
-        // Declare trace for the bubble chart and create Plotly visualization in the "bubble" DOM
+        // Declare trace for the bubble chart
         // x    :   OTU sample values found in the selected subject.
         // y    :   OTU ID
         // label:   OTU labels
@@ -62,6 +62,31 @@ function buildPlot(id){
                 color: otuIds
             }
         };
+
+        // Declare trace for the gauge chart
+        // value   :   Get 'wfreq' (washing frequency) from the metadata.
+        // rante   :   [null, 9]
+        var gaugeTrace = {
+                value: meta.wfreq,
+                title: { text: "Belly Button Wahshing Frequency<br>Scrubs per Week" },
+                type: "indicator",
+                mode: "gauge+number",
+                gauge: {
+                    axis: {visible: true, range: [null, 9], tickmode: "linear", nticks: 10},
+                    steps: [
+                        { range: [0,1], color: "rgb(247, 243, 236)"},
+                        { range: [1,2], color: "rgb(243, 241, 229)"},
+                        { range: [2,3], color: "rgb(233, 231, 202)"},
+                        { range: [3,4], color: "rgb(229, 233, 177)"},
+                        { range: [4,5], color: "rgb(213, 229, 149)"},
+                        { range: [5,6], color: "rgb(184, 205, 139)"},
+                        { range: [6,7], color: "rgb(135, 193, 128)"},
+                        { range: [7,8], color: "rgb(133, 189, 139)"},
+                        { range: [8,9], color: "rgb(128, 182, 134)"},
+                    ]
+                }
+            };
+
         // Declare bar chart layout (axes titles)
         var barLayout = {
             xaxis: {
@@ -89,12 +114,17 @@ function buildPlot(id){
             }
         };
 
-        // Plot the both traces in the corresponding DOM 
+        // Deglare gauge chart layour
+        var gaugeLayout = { width: 600, height: 500, margin: { t: 0, b: 0 } };
+
+        // Plot traces in the DOM 
         var barData = [barTrace];
         var bubData = [bubTrace];
+        var gaugeData = [gaugeTrace];
         
         Plotly.newPlot("bar", barData, barLayout);
-        Plotly.newPlot("bubble", bubData, bubLayout)
+        Plotly.newPlot("bubble", bubData, bubLayout);
+        Plotly.newPlot("gauge", gaugeData, gaugeLayout);
          
         // Empty metadata box
         d3.select("#sample-metadata").html("")
